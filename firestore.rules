@@ -1,0 +1,177 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==================== HELPER FUNCTIONS ====================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isApprovedUser() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.estado == 'aprobado';
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rol == 'admin';
+    }
+    
+    function isInspector() {
+      return isApprovedUser() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rol == 'inspector';
+    }
+    
+    function isOwnData(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // ==================== USERS COLLECTION ====================
+    
+    match /users/{userId} {
+      // Lectura:
+      // - Usuarios aprobados pueden leer su propio perfil
+      // - Administradores pueden leer todos los perfiles
+      allow read: if isAuthenticated() && (
+        isOwnData(userId) || isAdmin()
+      );
+      
+      // Creación:
+      // - Cloud Functions crean usuarios automáticamente
+      // - No permitir creación directa desde el cliente
+      allow create: if false;
+      
+      // Actualización:
+      // - Usuarios pueden actualizar solo su propio perfil (excepto rol y estado)
+      // - Admin puede actualizar cualquier perfil
+      allow update: if isAdmin() || (
+        isOwnData(userId) && 
+        !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['estado', 'rol', 'fechaRegistro'])
+      );
+      
+      // Eliminación:
+      // - Solo admins pueden eliminar usuarios
+      allow delete: if isAdmin();
+    }
+    
+    // ==================== UBICACIONES COLLECTION ====================
+    
+    match /ubicaciones/{userId} {
+      // Lectura:
+      // - Solo usuarios aprobados pueden ver ubicaciones
+      allow read: if isApprovedUser();
+      
+      // Escritura:
+      // - Solo el propio usuario puede actualizar su ubicación
+      // - Solo si está aprobado
+      allow write: if isOwnData(userId) && isApprovedUser();
+    }
+    
+    // ==================== MENSAJES COLLECTION ====================
+    
+    match /mensajes/{mensajeId} {
+      // Lectura:
+      // - Todos los usuarios aprobados pueden leer mensajes
+      allow read: if isApprovedUser();
+      
+      // Creación:
+      // - Solo inspectores aprobados pueden crear mensajes
+      // - El remitente debe ser el usuario autenticado
+      allow create: if isInspector() && 
+        request.resource.data.remitenteId == request.auth.uid;
+      
+      // Actualización:
+      // - Solo el autor puede editar su mensaje
+      // - Admin puede marcar como eliminado
+      allow update: if isAdmin() || (
+        resource.data.remitenteId == request.auth.uid &&
+        !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['remitenteId', 'remitenteNombre', 'timestamp'])
+      );
+      
+      // Eliminación:
+      // - Solo el autor puede eliminar sus propios mensajes
+      allow delete: if resource.data.remitenteId == request.auth.uid;
+    }
+    
+    // ==================== DOCUMENTOS COLLECTION ====================
+    
+    match /documentos/{documentoId} {
+      // Lectura:
+      // - Usuarios aprobados pueden leer documentos (para el chat IA)
+      allow read: if isApprovedUser();
+      
+      // Escritura:
+      // - Solo administradores pueden crear/modificar/eliminar documentos
+      allow write: if isAdmin();
+    }
+    
+    // ==================== LOGS COLLECTION ====================
+    
+    match /logs/{logId} {
+      // Lectura:
+      // - Solo administradores pueden leer logs
+      allow read: if isAdmin();
+      
+      // Escritura:
+      // - Cloud Functions crean logs automáticamente
+      allow create: if false;
+      
+      // No permitir actualizaciones ni eliminaciones
+      allow update, delete: if false;
+    }
+    
+    // ==================== REQUESTS COLLECTION ====================
+    
+    match /requests/{requestId} {
+      // Lectura:
+      // - Administradores pueden ver todas las solicitudes
+      // - Usuarios pueden ver su propia solicitud
+      allow read: if isAuthenticated() && (
+        isAdmin() || request.auth.uid == requestId
+      );
+      
+      // Creación:
+      // - Cloud Functions crean requests (pero la reglas permiten lectura)
+      allow create: if isAuthenticated() && request.auth.uid == requestId;
+      
+      // Actualización:
+      // - Solo admins pueden actualizar solicitudes (aprobar/rechazar)
+      allow update: if isAdmin();
+      
+      // Eliminación:
+      // - No permitir eliminación de requests (historial)
+      allow delete: if false;
+    }
+    
+    // ==================== CONFIG COLLECTION ====================
+    
+    match /config/{configId} {
+      // Lectura:
+      // - Todos los usuarios aprobados pueden leer configuración
+      allow read: if isApprovedUser();
+      
+      // Escritura:
+      // - Solo administradores pueden modificar configuración
+      allow write: if isAdmin();
+    }
+    
+    // ==================== CHAT HISTORIAL COLLECTION ====================
+    
+    match /chat_historial/{historialId} {
+      // Lectura:
+      // - Solo el propio usuario puede leer su historial
+      allow read: if isOwnData(historialId);
+      
+      // Creación:
+      // - Cloud Functions crean historial
+      allow create: if false;
+      
+      // No permitir modificaciones
+      allow update, delete: if false;
+    }
+    
+  }
+}

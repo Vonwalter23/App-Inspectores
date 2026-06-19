@@ -1,0 +1,50 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ==================== AUDIO MESSAGES ====================
+    // Path: /audio/{userId}/{filename}
+    
+    match /audio/{userId}/{filename} {
+      // Lectura: Cualquier usuario autenticado puede leer
+      allow read: if request.auth != null;
+      
+      // Escritura: Solo el propio usuario puede subir audio
+      // Tamaño máximo: 1MB (~30 segundos de audio M4A)
+      // Formato: Solo audio/mp4
+      allow write: if request.auth.uid == userId
+        && request.resource.size < 1024 * 1024  // 1MB
+        && request.resource.contentType == 'audio/mp4';
+    }
+    
+    // ==================== PROFILE PHOTOS ====================
+    // Path: /profiles/{userId}/{filename}
+    
+    match /profiles/{userId}/{filename} {
+      // Lectura: Cualquiera puede ver perfiles
+      allow read: if true;
+      
+      // Escritura: Solo el propio usuario puede cambiar su foto
+      // Tamaño máximo: 5MB
+      // Formato: Solo imágenes
+      allow write: if request.auth.uid == userId
+        && request.resource.size < 5 * 1024 * 1024  // 5MB
+        && request.resource.contentType.matches('image/.*');
+    }
+    
+    // ==================== TEMPORARY DOCUMENTS ====================
+    // Path: /documentos/temporal/{filename}
+    // Solo para admins durante la subida
+    
+    match /documentos/temporal/{filename} {
+      // Sin lectura pública
+      allow read: if false;
+      
+      // Solo admins pueden subir documentos temporales
+      // Tamaño máximo: 10MB
+      // Formato: Solo PDF
+      allow write: if false;  // Las Cloud Functions usan service account
+    }
+    
+  }
+}

@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.dependencies/
+
+# Build outputs
+*.apk
+*.aab
+*.ipa
+build/
+.dart_tool/
+.packages/
+.pub-cache/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+*.log
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Firebase (keep config files for reference)
+# Uncomment if you want to exclude sensitive data:
+# app_inspectores/android/app/google-services.json
+# panel_admin/public/js/firebase-config.js

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "946555132852",
+    "firebase_url": "https://app-inspectores-trelew-default-rtdb.firebaseio.com",
+    "project_id": "app-inspectores-trelew",
+    "storage_bucket": "app-inspectores-trelew.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946555132852:android:667cdda11aa3c72a9fb0e1",
+        "android_client_info": {
+          "package_name": "com.municipalidad.trelew.inspectores"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "946555132852-vr19bqbg5abp5vk4jvbsctd2qta9vhsg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy1gAEXvhJOCA-CG0OmBcjZ2VuPAp7-Og"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "946555132852-vr19bqbg5abp5vk4jvbsctd2qta9vhsg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

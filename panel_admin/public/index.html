@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - App Inspectores Trelew</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    
+    <!-- Google Maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBpKbl3vRcqNRwcMm3f8qOOPGpb43qXQZE"></script>
+    
+    <!-- Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-logo">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h1>Panel de Administración</h1>
+            <p>App Inspectores Trelew</p>
+            <button id="google-login-btn" class="btn-google">
+                <img src="https://www.gstatic.com/firebasejs/staging/cdnfirebasejs.com/0.9.22/images/google-icon.png" alt="Google">
+                Iniciar sesión con Google
+            </button>
+            <div id="login-error" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app-screen" class="screen">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-shield-alt"></i>
+                <span>Admin Panel</span>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">A</div>
+                <div class="user-details">
+                    <span id="user-name">Administrador</span>
+                    <span id="user-email">admin@email.com</span>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-page="usuarios">
+                    <i class="fas fa-users"></i>
+                    <span>Usuarios</span>
+                    <span class="badge" id="pending-badge">0</span>
+                </li>
+                <li class="nav-item" data-page="documentos">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Documentos</span>
+                </li>
+                <li class="nav-item" data-page="mapa">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>Mapa en Vivo</span>
+                </li>
+                <li class="nav-item" data-page="logs">
+                    <i class="fas fa-history"></i>
+                    <span>Logs</span>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <button class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 id="page-title">Dashboard</h2>
+                <div class="header-actions">
+                    <span class="connection-status">
+                        <i class="fas fa-circle"></i>
+                        <span>Conectado</span>
+                    </span>
+                </div>
+            </header>
+            
+            <!-- Dashboard Page -->
+            <div class="page active" id="page-dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total-users">0</span>
+                            <span class="stat-label">Total Inspectores</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-pending-users">0</span>
+                            <span class="stat-label">Pendientes</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-online-users">0</span>
+                            <span class="stat-label">En Línea</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-documents">0</span>
+                            <span class="stat-label">Documentos</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3><i class="fas fa-clock"></i> Actividad Reciente</h3>
+                        <div id="recent-activity" class="activity-list">
+                            <p class="empty-state">Cargando...</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-map"></i> Inspectores en Tiempo Real</h3>
+                        <div id="map-preview" class="map-container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Usuarios Page -->
+            <div class="page" id="page-usuarios">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-users"></i> Gestión de Usuarios</h3>
+                        <div class="filter-tabs">
+                            <button class="tab-btn active" data-filter="all">Todos</button>
+                            <button class="tab-btn" data-filter="pendiente">Pendientes</button>
+                            <button class="tab-btn" data-filter="aprobado">Aprobados</button>
+                            <button class="tab-btn" data-filter="rechazado">Rechazados</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Credencial</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr>
+                                    <td colspan="6" class="empty-state">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Documentos Page -->
+            <div class="page" id="page-documentos">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-pdf"></i> Gestión Documental</h3>
+                        <button class="btn btn-primary" id="upload-doc-btn">
+                            <i class="fas fa-upload"></i> Subir Documento
+                        </button>
+                    </div>
+                    <div class="document-grid" id="documents-grid">
+                        <p class="empty-state">Cargando documentos...</p>
+                    </div>
+                </div>
+                
+                <!-- Upload Modal -->
+                <div class="modal" id="upload-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Subir Documento</h3>
+                            <button class="close-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="upload-form">
+                                <div class="form-group">
+                                    <label for="doc-name">Nombre del Documento</label>
+                                    <input type="text" id="doc-name" required placeholder="Ej: Ordenanza de Tránsito 2024">
+                                </div>
+                                <div class="form-group">
+                                    <label for="doc-type">Tipo</label>
+                                    <select id="doc-type" required>
+                                        <option value="">Seleccionar tipo...</option>
+                                        <option value="ley">Ley</option>
+                                        <option value="ordenanza">Ordenanza</option>
+                                        <option value="resolucion">Resolución</option>
+                                        <option value="reglamento">Reglamento</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="doc-category">Categoría</label>
+                                    <input type="text" id="doc-category" placeholder="Ej: Tránsito, Estacionamiento">
+                                </div>
+                                <div class="form-group">
+                                    <label for="doc-file">Archivo PDF</label>
+                                    <input type="file" id="doc-file" accept=".pdf" required>
+                                </div>
+                                <div class="progress-bar" id="upload-progress" style="display: none;">
+                                    <div class="progress-fill"></div>
+                                    <span class="progress-text">0%</span>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fas fa-upload"></i> Subir Documento
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mapa Page -->
+            <div class="page" id="page-mapa">
+                <div class="card full-height">
+                    <div class="card-header">
+                        <h3><i class="fas fa-map-marked-alt"></i> Ubicación en Tiempo Real</h3>
+                        <div class="map-info">
+                            <span id="inspectors-online-count">0 inspectores en línea</span>
+                        </div>
+                    </div>
+                    <div id="full-map" class="full-map-container"></div>
+                </div>
+            </div>
+            
+            <!-- Logs Page -->
+            <div class="page" id="page-logs">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Registro de Actividad</h3>
+                        <div class="filter-tabs">
+                            <button class="tab-btn active" data-filter="all">Todos</button>
+                            <button class="tab-btn" data-filter="auth">Auth</button>
+                            <button class="tab-btn" data-filter="mensaje">Mensajes</button>
+                            <button class="tab-btn" data-filter="documento">Documentos</button>
+                            <button class="tab-btn" data-filter="sistema">Sistema</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha/Hora</th>
+                                    <th>Usuario</th>
+                                    <th>Acción</th>
+                                    <th>Tipo</th>
+                                    <th>Detalles</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body">
+                                <tr>
+                                    <td colspan="5" class="empty-state">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
