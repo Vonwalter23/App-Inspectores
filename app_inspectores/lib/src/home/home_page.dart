@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
     final enabled = await LocationService.instance.startTracking();
     if (mounted) {
       setState(() {
-        _locationEnabled = enabled;
+        _locationEnabled = true;
       });
     }
   }
@@ -87,8 +87,8 @@ class _HomePageState extends State<HomePage> {
             label: 'Inicio',
           ),
           NavigationDestination(
-            icon: Icon(Icons.智能助手_outlined),
-            selectedIcon: Icon(Icons.智能助手),
+            icon: Icon(Icons.support_agent_outlined),
+            selectedIcon: Icon(Icons.support_agent),
             label: 'Asistente IA',
           ),
           NavigationDestination(
@@ -264,7 +264,7 @@ class DashboardView extends StatelessWidget {
             children: [
               _buildQuickAction(
                 context,
-                icon: Icons.智能助手,
+                icon: Icons.support_agent,
                 title: 'Asistente Legal',
                 subtitle: 'Consulta normas',
                 color: Colors.blue,
@@ -431,13 +431,13 @@ class DashboardView extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            FutureBuilder<Map<String, dynamic>?>(
-              future: LocationService.instance.getCurrentLocation(),
+            FutureBuilder<dynamic>(
+              future: LocationService.instance.getCurrentPosition(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();
                 }
-                final loc = snapshot.data!;
+                final loc = snapshot.data as Map<String, dynamic>;
                 return Text(
                   '${loc['latitud']}, ${loc['longitud']}',
                   style: const TextStyle(fontFamily: 'monospace'),

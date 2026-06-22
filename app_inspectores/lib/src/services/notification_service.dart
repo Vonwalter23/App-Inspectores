@@ -9,100 +9,75 @@ class NotificationService {
   factory NotificationService() => instance;
   NotificationService._internal();
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
-  StreamController<String>? _notificationController;
-  Stream<String> get onNotification => _notificationController?.stream ?? const Stream.empty();
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  StreamSubscription? _foregroundSubscription;
+  StreamSubscription? _backgroundSubscription;
+
+  Function(Map<String, dynamic>)? onMessageReceived;
 
   Future<void> initialize() async {
-    // Solicitar permisos
-    final settings = await _firebaseMessaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
+    try {
+      final settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized ||
-        settings.authorizationStatus == AuthorizationStatus.provisional) {
-      // Obtener token FCM
-      final token = await _firebaseMessaging.getToken();
-      if (token != null) {
-        await _saveToken(token);
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        debugPrint('Notificaciones autorizadas');
       }
 
-      // Escuchar cambios de token
-      _firebaseMessaging.onTokenRefresh.listen(_saveToken);
+      final token = await _messaging.getToken();
+      debugPrint('FCM Token: $token');
+      await _guardarToken(token);
 
-      // Configurar handlers
-      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
-
-      // Suscribirse al topic de inspectores
-      await _firebaseMessaging.subscribeToTopic('inspectores');
+      _messaging.onTokenRefresh.listen(_guardarToken);
+      _foregroundSubscription = FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+      _backgroundSubscription = FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessage);
+    } catch (e) {
+      debugPrint('Error inicializando notificaciones: $e');
     }
   }
 
-  Future<void> _saveToken(String token) async {
+  Future<void> _guardarToken(String? token) async {
+    if (token == null) return;
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     try {
-      await _firestore.collection('users').doc(user.uid).set({
-        'fcmToken': token,
-      }, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection('fcm_tokens').doc(user.uid).set({
+        'token': token,
+        'userId': user.uid,
+        'email': user.email,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
     } catch (e) {
       debugPrint('Error guardando token FCM: $e');
     }
   }
 
-  Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    debugPrint('Mensaje en foreground: ${message.messageId}');
-    
-    _notificationController?.add(message.notification?.body ?? '');
-  }
-
-  Future<void> _handleMessageOpenedApp(RemoteMessage message) async {
-    debugPrint('App abierta desde notificación: ${message.messageId}');
-    
-    // Navegar según el tipo de mensaje
-    final data = message.data;
-    final type = data['type'];
-    
-    switch (type) {
-      case 'mensaje':
-        // Navegar a mensajes
-        break;
-      case 'mencion':
-        // Navegar a mensaje específico
-        break;
-      case 'sistema':
-        // Mostrar detalles
-        break;
+  void _handleForegroundMessage(RemoteMessage message) {
+    debugPrint('Mensaje en foreground: ${message.notification?.title}');
+    if (onMessageReceived != null) {
+      onMessageReceived!(message.data);
     }
   }
 
-  Future<String?> getToken() async {
-    return await _firebaseMessaging.getToken();
+  void _handleBackgroundMessage(RemoteMessage message) {
+    debugPrint('Mensaje en background: ${message.notification?.title}');
+  }
+
+  Future<void> subscribeToTopic(String topic) async {
+    await _messaging.subscribeToTopic(topic);
   }
 
   Future<void> unsubscribeFromTopic(String topic) async {
-    await _firebaseMessaging.unsubscribeFromTopic(topic);
+    await _messaging.unsubscribeFromTopic(topic);
   }
 
   void dispose() {
-    _notificationController?.close();
-    _notificationController = null;
+    _foregroundSubscription?.cancel();
+    _backgroundSubscription?.cancel();
   }
-}
-
-// Background message handler (debe ser top-level)
-@pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  // Handle background message
 }

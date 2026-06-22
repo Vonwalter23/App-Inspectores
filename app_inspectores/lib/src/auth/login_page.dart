@@ -301,7 +301,7 @@ class _LoginPageState extends State<LoginPage> {
     
     // Extraer nombre del email o usar el display name
     final nombre = user.displayName?.split(' ').first ?? 
-                   user.email.split('@').first;
+                   user.email?.split('@').first ?? 'usuario';
     final apellido = user.displayName?.split(' ').skip(1).join(' ') ?? '';
     
     // Crear request

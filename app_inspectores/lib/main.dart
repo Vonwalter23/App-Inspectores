@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'src/auth/login_page.dart';
 import 'src/home/home_page.dart';
 import 'src/auth/pending_page.dart';
@@ -49,7 +50,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges.listen(_checkAuthState);
+    FirebaseAuth.instance.authStateChanges().listen(_checkAuthState);
   }
 
   Future<void> _checkAuthState(User? user) async {
@@ -183,7 +184,3 @@ class AuthService {
 }
 
 // Exportar servicios
-export 'src/services/notification_service.dart';
-export 'src/services/location_service.dart';
-export 'src/services/chat_service.dart';
-export 'src/services/mensaje_service.dart';
