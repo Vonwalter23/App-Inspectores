@@ -19,6 +19,7 @@ async function initApp() {
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             currentUser = user;
+            // IMPORTANTE: esperar a que carguen los datos
             await loadUserData();
             if (currentUserData?.rol === 'admin') {
                 showAppScreen();
@@ -61,10 +62,14 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
 
 async function loadUserData() {
     try {
+        console.log('Cargando datos para UID:', currentUser.uid);
         const doc = await db.collection('users').doc(currentUser.uid).get();
         if (doc.exists) {
             currentUserData = doc.data();
+            console.log('Datos cargados:', currentUserData);
             updateUserUI();
+        } else {
+            console.log('Usuario no existe en Firestore');
         }
     } catch (error) {
         console.error('Error loading user data:', error);
