@@ -1,15 +1,15 @@
 // Firebase Configuration - App Inspectores Trelew
+// Proyecto: app-inspectores-trelew-499913
 // ============================================
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCbOI6ePQm4a24qXK3bMSmfztC_FHD88bY",
-    authDomain: "app-inspectores-trelew.firebaseapp.com",
-    databaseURL: "https://app-inspectores-trelew-default-rtdb.firebaseio.com",
-    projectId: "app-inspectores-trelew",
-    storageBucket: "app-inspectores-trelew.firebasestorage.app",
-    messagingSenderId: "946555132852",
-    appId: "1:946555132852:web:f54dd2762f4c47b19fb0e1",
-    measurementId: "G-8LF98EX6Q7"
+    apiKey: "AIzaSyAzHrcZYSKa9w-yb-f-iDGWrLGCXYIDyzo",
+    authDomain: "app-inspectores-trelew-499913.firebaseapp.com",
+    projectId: "app-inspectores-trelew-499913",
+    storageBucket: "app-inspectores-trelew-499913.firebasestorage.app",
+    messagingSenderId: "468318865609",
+    appId: "1:468318865609:web:adc83ac6c3b2ce00cda518",
+    measurementId: "G-YYNHJ14JLT"
 };
 
 // Initialize Firebase
@@ -18,13 +18,6 @@ firebase.initializeApp(firebaseConfig);
 // Initialize services
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
-const messaging = firebase.messaging();
-
-// Enable Firestore offline persistence (optional)
-db.enablePersistence().catch((err) => {
-    console.log('Persistence error:', err.code);
-});
 
 // Google Maps API Key
 const GOOGLE_MAPS_API_KEY = 'AIzaSyBpKbl3vRcqNRwcMm3f8qOOPGpb43qXQZE';
