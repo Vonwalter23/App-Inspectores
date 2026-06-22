@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: '468318865609-36tsjdakr3ocmhq1s0kup1sgm9pjd97k.apps.googleusercontent.com',
   );
-  
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -42,7 +42,6 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo institucional
                   Container(
                     width: 120,
                     height: 120,
@@ -64,8 +63,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  
-                  // Título
                   const Text(
                     'App Inspectores',
                     style: TextStyle(
@@ -83,8 +80,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 50),
-                  
-                  // Card de login
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -118,8 +113,6 @@ class _LoginPageState extends State<LoginPage> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        
-                        // Mensaje de error
                         if (_errorMessage != null) ...[
                           Container(
                             padding: const EdgeInsets.all(12),
@@ -143,8 +136,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 16),
                         ],
-                        
-                        // Botón de Google
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
@@ -162,18 +153,9 @@ class _LoginPageState extends State<LoginPage> {
                                 ? const SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
+                                    child: CircularProgressIndicator(strokeWidth: 2),
                                   )
-                                : Image.network(
-                                    'https://www.gstatic.com/firebasejs/staging/cdnfirebasejs.com/0.9.22/images/google-icon.png',
-                                    height: 24,
-                                    width: 24,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(Icons.login, size: 24);
-                                    },
-                                  ),
+                                : const Icon(Icons.login, size: 24),
                             label: Text(
                               _isLoading ? 'Iniciando sesión...' : 'Continuar con Google',
                               style: const TextStyle(
@@ -186,10 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                  
                   const SizedBox(height: 24),
-                  
-                  // Información
                   const Text(
                     'Solo inspectores autorizados pueden acceder',
                     style: TextStyle(
@@ -214,43 +193,56 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // Iniciar sesión con Google
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn().timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw PlatformException(code: 'TIMEOUT', message: 'Tiempo de espera agotado');
+        },
+      );
+
       if (googleUser == null) {
-        // Usuario canceló
         setState(() {
           _isLoading = false;
+          _errorMessage = 'Inicio de sesión cancelado';
         });
         return;
       }
 
-      // Obtener credenciales
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        throw PlatformException(code: 'NO_TOKEN', message: 'No se pudieron obtener los tokens');
+      }
+
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Iniciar sesión en Firebase
-      final UserCredential userCredential = 
-          await FirebaseAuth.instance.signInWithCredential(credential);
-      
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       final User? user = userCredential.user;
+      
       if (user == null) {
         throw Exception('Error al iniciar sesión');
       }
 
-      // Verificar o crear usuario
       await _processUser(user);
 
     } on PlatformException catch (e) {
+      String mensaje = 'Error de Google Sign In';
+      if (e.code == 'TIMEOUT') {
+        mensaje = 'Tiempo de conexión agotado. Revisa tu conexión a internet.';
+      } else if (e.code == 'NETWORK_ERROR') {
+        mensaje = 'Error de red. Verifica tu conexión a internet.';
+      } else {
+        mensaje = e.message ?? 'Error desconocido';
+      }
       setState(() {
-        _errorMessage = 'Error: ${e.message}';
+        _errorMessage = mensaje;
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error al iniciar sesión. Intenta nuevamente.';
+        _errorMessage = 'Error: ${e.toString()}';
       });
     } finally {
       if (mounted) {
@@ -263,21 +255,16 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _processUser(User user) async {
     final firestore = FirebaseFirestore.instance;
-    
-    // Verificar si el usuario ya existe
     final userDoc = await firestore.collection('users').doc(user.uid).get();
-    
+
     if (!userDoc.exists) {
-      // Nuevo usuario - crear solicitud
       await _createUserRequest(user);
     }
-    
-    // Obtener estado actual
+
     final status = await _getUserStatus(user.uid);
-    
+
     if (!mounted) return;
 
-    // Navegar según estado
     if (status == 'aprobado') {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const HomePage()),
@@ -287,7 +274,6 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (_) => const PendingPage()),
       );
     } else {
-      // Rechazado o sin credencial
       setState(() {
         _errorMessage = 'Tu cuenta ha sido rechazada. Contacta al administrador.';
       });
@@ -298,13 +284,11 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _createUserRequest(User user) async {
     final firestore = FirebaseFirestore.instance;
     final batch = firestore.batch();
-    
-    // Extraer nombre del email o usar el display name
+
     final nombre = user.displayName?.split(' ').first ?? 
                    user.email?.split('@').first ?? 'usuario';
     final apellido = user.displayName?.split(' ').skip(1).join(' ') ?? '';
-    
-    // Crear request
+
     final requestRef = firestore.collection('requests').doc(user.uid);
     batch.set(requestRef, {
       'uid': user.uid,
@@ -316,7 +300,6 @@ class _LoginPageState extends State<LoginPage> {
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    // Crear usuario
     final userRef = firestore.collection('users').doc(user.uid);
     batch.set(userRef, {
       'email': user.email,
@@ -338,7 +321,6 @@ class _LoginPageState extends State<LoginPage> {
           .collection('users')
           .doc(uid)
           .get();
-      
       if (doc.exists) {
         return doc.data()?['estado'];
       }
