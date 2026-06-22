@@ -4,6 +4,34 @@
 
 ---
 
+## 📊 ESTADO DEL PROYECTO (22 Jun 2026)
+
+| Componente | Estado | Notas |
+|------------|--------|-------|
+| Firebase Project | ✅ Configurado | `app-inspectores-trelew-499913` |
+| Firestore Rules | ✅ Desplegado | Seguridad activa |
+| Firestore Indexes | ✅ Desplegado | - |
+| Chat IA | ✅ Funcional | Directo a Groq API (sin Cloud Functions) |
+| Panel Web Admin | ✅ Código listo | Requiere deploy |
+| App Android | ✅ Código listo | Requiere compilación |
+| Cloud Functions | ❌ No disponible | Requiere billing |
+
+### Proyecto Firebase
+- **ID:** `app-inspectores-trelew-499913`
+- **Plan:** Spark (GRATIS)
+- **Storage:** Pendiente inicialización manual
+
+### Cuenta de Servicio
+- **Email:** `firebase-deploy@app-inspectores-trelew-499913.iam.gserviceaccount.com`
+- **Roles:** Firebase Admin, Cloud Functions Admin, Cloud Storage Admin
+
+### Decisiones Importantes
+1. **Chat IA directo:** La app llama directamente a Groq API (no usa Cloud Functions)
+2. **RAG en cliente:** Búsqueda de fragmentos en Firestore desde el cliente
+3. **Sin Cloud Functions:** No se usa por requerimiento de billing
+
+---
+
 ## 📋 TABLA DE CONTENIDOS
 
 1. [Resumen del Proyecto](#-resumen-del-proyecto)
