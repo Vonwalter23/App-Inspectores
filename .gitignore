@@ -25,6 +25,13 @@ Thumbs.db
 .env
 .env.local
 
+# Firebase - NEVER commit these files
+*firebase*.json
+*google-services*.json
+*-credentials*.json
+*.pem
+*.key
+
 # Firebase (keep config files for reference)
 # Uncomment if you want to exclude sensitive data:
 # app_inspectores/android/app/google-services.json

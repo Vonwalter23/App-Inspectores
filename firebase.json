@@ -1,4 +1,5 @@
 {
+  "project": "app-inspectores-trelew-499913",
   "hosting": {
     "public": "panel_admin/public",
     "ignore": [
@@ -17,21 +18,6 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": [
-    {
-      "source": "panel_admin/functions",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run build"
-      ]
-    }
-  ],
   "storage": {
     "rules": "storage.rules"
   }
