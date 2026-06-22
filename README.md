@@ -1,70 +1,85 @@
-# 🚔 Sistema Integral para Inspectores de Tránsito de Trelew
+# Sistema Integral para Inspectores de Tránsito de Trelew
 
-![Flutter](https://img.shields.io/badge/Flutter-3.16-blue)
-![Firebase](https://img.shields.io/badge/Firebase-10.7-orange)
-![Dart](https://img.shields.io/badge/Dart-3.2-blue)
+## 🚀 Estado del Proyecto
 
-Sistema completo para la gestión de inspectores de tránsito de la Municipalidad de Trelew, Chubut. Incluye aplicación móvil Android y panel administrativo web.
-
-## 📋 Índice
-
-- [Descripción](#-descripción)
-- [Tecnologías](#-tecnologías)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Configuración](#-configuración)
-- [Instalación](#-instalación)
-- [Despliegue](#-despliegue)
-- [API Keys Requeridas](#-api-keys-requeridas)
-- [Funcionalidades](#-funcionalidades)
-- [Modelo de Datos](#-modelo-de-datos)
-- [Seguridad](#-seguridad)
-- [Costos Estimados](#-costos-estimados)
-- [Licencia](#-licencia)
+| Componente | Estado | URL |
+|------------|--------|-----|
+| Panel Admin Web | ✅ Funcional | https://vonwalter23.github.io/App-Inspectores/ |
+| App Android | 🔄 En desarrollo | `app_inspectores/` |
+| Backend Firebase | ✅ Configurado | `app-inspectores-trelew-499913` |
+| Firestore | ✅ Activo | Colecciones: users, ubicaciones, mensajes |
+| GitHub Pages | ✅ Activo | Rama `gh-pages` |
 
 ---
 
-## 📖 Descripción
+## 📋 Descripción
 
-Este proyecto proporciona una plataforma integral para los inspectores de tránsito de Trelew, incluyendo:
+Plataforma completa para inspectores de tránsito de la Municipalidad de Trelew, Chaco, Argentina.
 
-- **Aplicación Android**: Para que los inspectores realicen su trabajo diario
-- **Panel Web Admin**: Para que los administradores gestionen usuarios, documentos y monitoreen ubicaciones
+### Características Principales
 
-### Roles del Sistema
-
-| Rol | Aplicación | Permisos |
-|-----|------------|----------|
-| **Inspector** | Android | Login, Chat IA, Mensajería, Geolocalización |
-| **Administrador** | Web | Gestión de usuarios, Documentos, Mapa en tiempo real, Logs |
+- **Autenticación**: Google Sign In
+- **App Móvil**: Flutter (Android 10+)
+- **Panel Web**: Progressive Web App (PWA)
+- **Backend**: Firebase (Firestore, FCM, Auth)
+- **IA Legal**: Groq API con sistema RAG
+- **Mapas**: Google Maps API
+- **Documentación**: Google Drive integration
 
 ---
 
-## 🛠 Tecnologías
+## 🏗️ Arquitectura
 
-### Aplicación Móvil (Flutter)
-- Flutter 3.16+
-- Dart 3.2+
-- Material Design 3
-- Firebase SDK
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    ARQUITECTURA DEL SISTEMA                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   ┌──────────────┐         ┌──────────────────────────┐    │
+│   │  App Android  │         │     Panel Admin Web      │    │
+│   │   (Flutter)   │         │   (GitHub Pages)         │    │
+│   └───────┬──────┘         └───────────┬──────────────┘    │
+│           │                             │                   │
+│           └──────────┬──────────────────┘                   │
+│                      │                                      │
+│                      ▼                                      │
+│           ┌─────────────────────┐                          │
+│           │   Firebase Auth     │                          │
+│           │   (Authentication)   │                          │
+│           └──────────┬──────────┘                          │
+│                      │                                      │
+│           ┌──────────┴──────────┐                           │
+│           │                     │                           │
+│           ▼                     ▼                           │
+│   ┌───────────────┐   ┌───────────────┐                   │
+│   │   Firestore    │   │     FCM       │                   │
+│   │  (Database)    │   │ (Notifications)                   │
+│   └───────────────┘   └───────────────┘                   │
+│                                                             │
+│   ┌─────────────────────────────────────────┐               │
+│   │           Groq API (IA)                │               │
+│   │      RAG - Asistente Legal             │               │
+│   └─────────────────────────────────────────┘               │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
-### Panel Web
-- HTML5, CSS3, JavaScript
-- Firebase Web SDK
-- Google Maps JavaScript API
+---
 
-### Backend (Firebase)
-- Firebase Authentication
-- Cloud Firestore
-- Cloud Functions (Node.js)
-- Firebase Cloud Messaging
-- Firebase Storage
-- Firebase Hosting
+## 👥 Roles del Sistema
 
-### Servicios Externos
-- Google Sign In
-- Google Drive API
-- Google Maps API
-- Groq API (IA)
+### Inspector
+- Login con Google
+- Consultar asistente legal IA
+- Mensajería interna (texto y audio)
+- Geolocalización en tiempo real
+- Recibir notificaciones
+
+### Administrador
+- Gestionar usuarios (aprobar/rechazar)
+- Ver inspectores en mapa en tiempo real
+- Gestionar documentación legal
+- Consultar logs de actividad
 
 ---
 
@@ -72,457 +87,206 @@ Este proyecto proporciona una plataforma integral para los inspectores de tráns
 
 ```
 sistema-inspectores-trelew/
-├── app_inspectores/           # Aplicación Android (Flutter)
+├── app_inspectores/          # App Flutter Android
+│   ├── android/
+│   │   └── app/
+│   │       └── google-services.json  # Firebase config
 │   ├── lib/
-│   │   ├── main.dart         # Punto de entrada
-│   │   └── src/
-│   │       ├── auth/         # Páginas de autenticación
-│   │       ├── home/         # Página principal
-│   │       ├── chat/         # Chat con IA
-│   │       ├── mensajeria/    # Sistema de mensajería
-│   │       ├── widgets/       # Componentes reutilizables
-│   │       ├── services/     # Servicios (ubicación, chat, etc.)
-│   │       └── theme/        # Tema de la aplicación
-│   ├── android/              # Configuración Android
-│   └── pubspec.yaml         # Dependencias Flutter
+│   │   ├── main.dart
+│   │   ├── services/          # Firebase, Chat, Location
+│   │   ├── screens/           # Pantallas UI
+│   │   └── models/            # Modelos de datos
+│   └── pubspec.yaml
 │
-├── panel_admin/              # Panel Web Administrativo
+├── panel_admin/              # Panel Web Admin
 │   ├── public/
-│   │   ├── index.html       # Página principal
-│   │   ├── css/
-│   │   │   └── styles.css   # Estilos
+│   │   ├── index.html
+│   │   ├── css/styles.css
 │   │   └── js/
-│   │       ├── firebase-config.js
-│   │       └── app.js       # Lógica principal
-│   └── functions/           # Cloud Functions
-│       ├── package.json
-│       └── src/
-│           └── index.ts     # Funciones serverless
+│   │       ├── app.js
+│   │       └── firebase-config.js
+│   └── firebase.json
 │
-├── firebase.json             # Configuración Firebase
-├── firestore.rules          # Reglas de seguridad
-└── README.md                # Este archivo
+├── docs/                     # GitHub Pages (carpeta docs)
+│
+├── AGENTE.md                 # Documentación del agente IA
+├── README.md                 # Este archivo
+└── firebase-credentials.json  # Admin SDK credentials
 ```
 
 ---
 
-## ⚙ Configuración
+## 🔧 Configuración Firebase
 
-### 1. Configuración de Firebase
+### Proyecto
+- **Project ID**: `app-inspectores-trelew-499913`
+- **Project Number**: `468318865609`
 
-#### Crear Proyecto Firebase
-1. Ir a [Firebase Console](https://console.firebase.google.com/)
-2. Crear nuevo proyecto: `app-inspectores-trelew`
-3. Habilitar **Authentication** → Google Sign In
-4. Crear **Firestore Database** (modo nativo, región: southamerica-east1)
-5. Habilitar **Cloud Messaging**
+### Apps Registradas
+| Tipo | Package/Bundle | Status |
+|------|----------------|--------|
+| Web | Panel Admin | ✅ Activa |
+| Android | `com.municipalidad.trelew.inspectores` | ✅ Configurada |
 
-#### Registrar Apps
-
-**App Android:**
-1. Agregar app Android
-2. Package name: `com.municipalidad.trelew.inspectores`
-3. Descargar `google-services.json`
-4. Colocar en `app_inspectores/android/app/`
-
-**App Web:**
-1. Agregar app Web
-2. Copiar configuración de Firebase
-
-### 2. Configuración de Google Cloud Console
-
-#### Habilitar APIs
-1. Ir a [Google Cloud Console](https://console.cloud.google.com/)
-2. Seleccionar proyecto
-3. Ir a API y servicios → Biblioteca
-4. Habilitar:
-   - Google Drive API
-   - Google Maps JavaScript API
-   - Google People API
-
-#### Crear OAuth 2.0
-1. Ir a API y servicios → Credenciales
-2. Crear ID de cliente OAuth
-3. Tipo: Aplicación web
-4. Agregar URI de redireccionamiento:
-   ```
-   https://app-inspectores-trelew.firebaseapp.com/__/auth/handler
-   ```
-
-#### Crear API Key
-1. API y servicios → Credenciales → Crear credenciales → Clave de API
-2. Restringir a Google Maps JavaScript API
-
-### 3. Configuración de Groq API
-
-1. Crear cuenta en [Groq Console](https://console.groq.com/)
-2. Generar API Key
-3. Guardar para usar en Cloud Functions
-
----
-
-## 📦 Instalación
-
-### Aplicación Android (Flutter)
-
-```bash
-# 1. Navegar al directorio de la app
-cd app_inspectores
-
-# 2. Instalar dependencias
-flutter pub get
-
-# 3. Colocar google-services.json
-# Copiar el archivo descargado a:
-# app_inspectores/android/app/google-services.json
-
-# 4. Compilar APK debug
-flutter build apk --debug
-
-# 5. Compilar APK release (requiere signing)
-flutter build apk --release
-```
-
-### Panel Web Admin
-
-```bash
-# 1. Navegar al directorio
-cd panel_admin
-
-# 2. Instalar Firebase CLI
-npm install -g firebase-tools
-
-# 3. Login en Firebase
-firebase login
-
-# 4. Inicializar proyecto (si no está inicializado)
-firebase init
-
-# 5. Seleccionar:
-#    - Hosting
-#    - Functions
-#    - Firestore
-
-# 6. Desplegar
-firebase deploy
-```
-
-### Cloud Functions
-
-```bash
-# 1. Navegar a functions
-cd panel_admin/functions
-
-# 2. Instalar dependencias
-npm install
-
-# 3. Compilar TypeScript
-npm run build
-
-# 4. Desplegar solo functions
-firebase deploy --only functions
-```
+### Servicios Habilitados
+- ✅ Firebase Authentication (Google Sign-In)
+- ✅ Cloud Firestore
+- ✅ Firebase Cloud Messaging
+- ✅ Firebase Storage
 
 ---
 
 ## 🚀 Despliegue
 
-### Despliegue Completo
+### Panel Web (GitHub Pages)
 
 ```bash
-# Login en Firebase
-firebase login
+# 1. Ir a la rama gh-pages
+git checkout gh-pages
 
-# Seleccionar proyecto
-firebase use app-inspectores-trelew
+# 2. Actualizar archivos en docs/
+cp panel_admin/public/* docs/
 
-# Desplegar todo
-firebase deploy
+# 3. Commit y push
+git add docs/
+git commit -m "Actualización del panel"
+git push origin gh-pages
 ```
 
-### Despliegue Individual
+**URL**: https://vonwalter23.github.io/App-Inspectores/
+
+### App Android
 
 ```bash
-# Solo hosting (panel web)
-firebase deploy --only hosting
+cd app_inspectores
 
-# Solo functions
-firebase deploy --only functions
+# Instalar dependencias
+flutter pub get
 
-# Solo firestore rules
-firebase deploy --only firestore:rules
+# Compilar debug APK
+flutter build apk --debug
+
+# El APK estará en:
+# build/app/outputs/flutter-apk/app-debug.apk
 ```
 
 ---
 
-## 🔑 API Keys Requeridas
+## 🔐 Seguridad - Firestore Rules
 
-### Variables de Entorno
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Usuarios - solo admins pueden escribir
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rol == 'admin';
+    }
+    
+    // Ubicaciones - solo inspectores aprobados
+    match /ubicaciones/{userId} {
+      allow read: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.estado == 'aprobado';
+      allow write: if request.auth != null 
+        && request.auth.uid == userId;
+    }
+    
+    // Mensajes - solo inspectores aprobados
+    match /mensajes/{messageId} {
+      allow read, write: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.estado == 'aprobado';
+    }
+  }
+}
+```
 
-Crear archivo `.env` en `panel_admin/functions/`:
+---
 
+## 🤖 Asistente Legal IA (RAG)
+
+### Configuración Groq
+
+```bash
+# Variable de entorno requerida
+export GROQ_API_KEY="tu-api-key-de-groq"
+```
+
+### Modelos Disponibles (Gratuitos)
+- `llama-3.1-8b-instant`
+- `mixtral-8x7b-32768`
+- `gemma2-9b-instant`
+
+### Flujo RAG
+1. Admin sube PDF a Google Drive
+2. Cloud Function extrae texto
+3. Se generan embeddings
+4. Se guardan en Firestore
+5. Inspector consulta → búsqueda semántica → respuesta Groq
+
+---
+
+## 📱 Funcionalidades
+
+### App Inspector (Android)
+
+| Módulo | Descripción |
+|--------|-------------|
+| Login | Google Sign In con aprobación admin |
+| Chat IA | Consultas legales con RAG |
+| Mensajería | Mensajes de texto y audio |
+| Ubicación | GPS en tiempo real (cada 30s) |
+| Notificaciones | FCM push notifications |
+
+### Panel Admin (Web)
+
+| Módulo | Descripción |
+|--------|-------------|
+| Dashboard | Estadísticas generales |
+| Usuarios | Aprobar/rechazar inspectores |
+| Mapa | Ver inspectores en tiempo real |
+| Mensajes | Broadcast a inspectores |
+| Logs | Historial de actividad |
+
+---
+
+## 🔑 Variables de Entorno
+
+### Backend (Firestore Security Rules)
+Ver archivo `firestore.rules`
+
+### App Android
+El archivo `google-services.json` contiene todas las credenciales.
+
+### Panel Web
+Configuración en `docs/js/firebase-config.js`
+
+### Groq API
 ```env
-GROQ_API_KEY=tu_api_key_de_groq
-DRIVE_FOLDER_ID=id_de_carpeta_drive
+GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxx
 ```
-
-### Firebase Configuration
-
-Obtener de Firebase Console → Project Settings → Your apps
-
-```javascript
-const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "app-inspectores-trelew.firebaseapp.com",
-  databaseURL: "https://app-inspectores-trelew-default-rtdb.firebaseio.com",
-  projectId: "app-inspectores-trelew",
-  storageBucket: "app-inspectores-trelew.firebasestorage.app",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID"
-};
-```
-
----
-
-## ✨ Funcionalidades
-
-### Aplicación Móvil (Inspector)
-
-| Función | Descripción |
-|---------|-------------|
-| 🔐 Login con Google | Autenticación mediante Google Sign In |
-| ⏳ Pantalla de Espera | Indica estado de la solicitud de acceso |
-| 🤖 Asistente Legal IA | Consulta normas usando RAG con Groq |
-| 💬 Mensajería Interna | Canal de comunicación entre inspectores |
-| 🎤 Mensajes de Audio | Envío de mensajes de voz (máx. 30 seg) |
-| 📍 Geolocalización | Ubicación en tiempo real (actualiza cada 30 seg) |
-| 🔔 Notificaciones | Alertas por menciones y mensajes |
-| 🌙 Modo Oscuro | Soporte para tema oscuro |
-
-### Panel Web (Administrador)
-
-| Función | Descripción |
-|---------|-------------|
-| 📊 Dashboard | Estadísticas y actividad reciente |
-| 👥 Gestión de Usuarios | Aprobar/rechazar inspectores |
-| 📄 Gestión Documental | Subir, indexar y eliminar PDFs |
-| 🗺️ Mapa en Vivo | Ubicaciones en tiempo real |
-| 📜 Logs | Registro de actividad del sistema |
-
----
-
-## 🗄️ Modelo de Datos
-
-### Colecciones Firestore
-
-```
-users/{uid}
-├── email: string
-├── nombre: string
-├── apellido: string
-├── credencial: string
-├── estado: "pendiente" | "aprobado" | "rechazado"
-├── rol: "inspector" | "admin"
-├── fechaRegistro: timestamp
-└── fcmToken: string
-
-ubicaciones/{uid}
-├── latitud: number
-├── longitud: number
-├── timestamp: timestamp
-├── nombre: string
-├── apellido: string
-├── credencial: string
-└── activo: boolean
-
-mensajes/{mensajeId}
-├── remitenteId: string
-├── remitenteNombre: string
-├── contenido: string
-├── tipo: "texto" | "audio"
-├── audioUrl: string (opcional)
-├── mencion: string[]
-├── leidoPor: string[]
-└── timestamp: timestamp
-
-documentos/{documentoId}
-├── nombre: string
-├── tipo: "ley" | "ordenanza" | "resolucion"
-├── driveFileId: string
-├── driveFileUrl: string
-├── estado: "pendiente" | "indexando" | "indexado" | "error"
-├── totalFragmentos: number
-└── fragmentos: Map<string, Fragmento>
-
-logs/{logId}
-├── accion: string
-├── tipo: "auth" | "mensaje" | "documento" | "sistema"
-├── usuarioId: string
-├── usuarioNombre: string
-├── detalles: string
-└── timestamp: timestamp
-
-requests/{uid}
-├── uid: string
-├── email: string
-├── nombre: string
-├── apellido: string
-├── credencial: string
-├── estado: "pendiente" | "aprobado" | "rechazado"
-└── timestamp: timestamp
-```
-
----
-
-## 🔒 Seguridad
-
-### Firestore Security Rules
-
-El sistema implementa las siguientes reglas de seguridad:
-
-- **Mínimo Privilegio**: Cada rol tiene acceso solo a lo necesario
-- **Validación de Estado**: Solo usuarios "aprobado" pueden acceder
-- **Separación de Roles**: Inspectores vs Administradores
-- **Validación de Datos**: Tipos y rangos verificados
-
-### Reglas Principales
-
-```javascript
-// Solo admins pueden ver logs
-allow read: if isAdmin();
-
-// Solo inspectores aprobados pueden crear mensajes
-allow create: if isInspector();
-
-// Usuarios solo pueden modificar su propia ubicación
-allow write: if isOwnData(userId);
-```
-
-### Almacenamiento Seguro
-
-- Tokens FCM almacenados de forma segura
-- Archivos de audio en Firebase Storage (privado)
-- Documentos en Google Drive (carpeta compartida)
-
----
-
-## 💰 Costos Estimados
-
-### Firebase (Spark Plan - Free)
-
-| Servicio | Límite Free | Uso Estimado |
-|----------|-------------|--------------|
-| Authentication | Ilimitado | ✅ |
-| Firestore | 1GB storage, 50K reads/day | ✅ Dentro de límite |
-| Storage | 5GB | ✅ Dentro de límite |
-| Cloud Functions | 2M invocaciones/mes | ✅ Dentro de límite |
-| Hosting | 10GB | ✅ Dentro de límite |
-| Cloud Messaging | Ilimitado | ✅ |
-
-### Groq API (Free Tier)
-
-- 30 requests/minuto
-- 14,400 requests/día
-- **Suficiente para 60 inspectores** con consultas normales
-
-### Google Maps API
-
-- 28,000 map loads/mes (gratis)
-- Excess: $7/1000 loads
-- **Costo estimado**: $0-5/mes
-
-### 💵 Costo Total Estimado: **$0-5/mes**
-
----
-
-## 🚦 Flujo de Autenticación
-
-```
-┌──────────┐     ┌──────────┐     ┌──────────┐
-│ INSPECTOR│────▶│  GOOGLE │────▶│FIREBASE │
-│  LOGIN   │     │  SIGN   │     │  AUTH    │
-└──────────┘     └──────────┘     └────┬─────┘
-                                       │
-                          ┌────────────┴────────────┐
-                          │ Check users collection   │
-                          └────────────┬────────────┘
-                                       │
-                          ┌────────────┴────────────┐
-                          │                         │
-                          ▼                         ▼
-                   ┌─────────────┐           ┌─────────────┐
-                   │   EXISTE?   │           │  NEW USER   │
-                   └──────┬──────┘           └──────┬──────┘
-                          │                         │
-                          ▼                         ▼
-                   ┌─────────────┐           ┌─────────────┐
-                   │CHECK STATUS │           │CREATE REQUEST│
-                   └──────┬──────┘           │  (pending)  │
-                          │                   └─────────────┘
-               ┌──────────┴──────────┐
-               │                     │
-               ▼                     ▼
-        ┌───────────┐          ┌───────────┐
-        │ APPROVED? │          │  WAITING  │
-        └─────┬─────┘          │   SCREEN  │
-              │                 └───────────┘
-              ▼
-        ┌───────────┐
-        │   HOME    │
-        │   PAGE    │
-        └───────────┘
-```
-
----
-
-## 📱 Capturas de Pantalla
-
-*(Agregar capturas del app y panel web)*
-
----
-
-## 🐛 Solución de Problemas
-
-### Error: "No Firebase App has been created"
-```bash
-# Asegúrate de que google-services.json está en:
-app_inspectores/android/app/google-services.json
-```
-
-### Error: "Location permissions denied"
-- Verificar que los permisos estén en AndroidManifest.xml
-- El usuario debe aceptar los permisos de ubicación
-
-### Error: "API key not valid"
-- Verificar que la API key de Google Maps esté correcta
-- Verificar restricciones de la API key en Google Cloud Console
 
 ---
 
 ## 📞 Soporte
 
-Para soporte técnico:
-- 📧 Email: soporte@trelew.gob.ar
-- 📞 Teléfono: 0800-XXX-XXXX
-- 🕐 Horario: Lunes a Viernes 8:00 - 14:00
+- **Proyecto**: Sistema Integral Inspectores de Tránsito
+- **Organización**: Municipalidad de Trelew, Chaco, Argentina
+- **Desarrollado con**: Flutter, Firebase, Groq AI
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto es propiedad de la **Municipalidad de Trelew**.
-
-Todos los derechos reservados © 2024-2025
+Copyright © 2025 Municipalidad de Trelew. Todos los derechos reservados.
 
 ---
 
-## 👥 Créditos
+## 🔗 Enlaces Útiles
 
-Desarrollado para la **Municipalidad de Trelew, Chubut, Argentina**.
-
-- **Arquitecto**: OpenHands AI Agent
-- **Tecnología**: Flutter + Firebase + Groq API
-
----
-
-*Este README fue generado como parte del proyecto Sistema Inspectores Trelew*
+- [Firebase Console](https://console.firebase.google.com/project/app-inspectores-trelew-499913)
+- [GitHub Repository](https://github.com/Vonwalter23/App-Inspectores)
+- [Panel Admin](https://vonwalter23.github.io/App-Inspectores/)
+- [Groq API](https://console.groq.com/)
