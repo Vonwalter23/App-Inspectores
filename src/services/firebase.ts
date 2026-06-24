@@ -3,9 +3,8 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChang
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 // Configuración de Firebase para App Inspectores Trelew
-// Esta configuración se obtiene de Firebase Console → Project Settings → Your apps
 const firebaseConfig = {
-  apiKey: "AIzaSyD3xXXXXXXXXXXXXXXXXXXXXXXXXX", // Reemplazar con tu API key real
+  apiKey: "AIzaSyDib4_Bn8k9UpXIyo8XAzb74yLt8sgZS2Y",
   authDomain: "app-inspectores-trelew-499913.firebaseapp.com",
   projectId: "app-inspectores-trelew-499913",
   storageBucket: "app-inspectores-trelew-499913.appspot.com",
@@ -25,7 +24,7 @@ const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
 
-// WebClientId para Google Sign-In (obtenido de Firebase Console)
+// WebClientId para Google Sign-In
 export const WEB_CLIENT_ID = '468318865609-2nq5s9fju53tsvu5v8s8gsuvadout2f2.apps.googleusercontent.com';
 
 export { signInWithPopup, signOut, onAuthStateChanged, doc, getDoc, setDoc, serverTimestamp };
