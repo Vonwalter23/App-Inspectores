@@ -15,19 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "468318865609-272n0po6c6ps7t9bk5ktkot9873ek4l4.apps.googleusercontent.com",
+          "client_id": "468318865609-p272rbvmjcqhbksaib7oa8qgb8bcphuk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.municipalidad.trelew.inspectores.app",
-            "certificate_hash": "e82dfcd695f36e9a4d71774f3acee76324744ab9"
-          }
-        },
-        {
-          "client_id": "468318865609-pjvdackthoopkrg3m7pv21ceqtg2ot05.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.municipalidad.trelew.inspectores.app",
-            "certificate_hash": "aac7a0abf54fdf713b2c6f0ea86d82340fb7a23e"
+            "certificate_hash": "e2b7bdf00f9b0ecf7101842b688cc53e29053978"
           }
         },
         {
