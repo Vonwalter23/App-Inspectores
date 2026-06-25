@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import { getAuth, signOut, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 // Configuración de Firebase para App Inspectores Trelew
 const firebaseConfig = {
@@ -19,13 +20,15 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Provider de Google
-const googleProvider = new GoogleAuthProvider();
-googleProvider.addScope('email');
-googleProvider.addScope('profile');
+// Configurar Google Sign-In con el Web Client ID de OAuth 2.0
+GoogleSignin.configure({
+  webClientId: '468318865609-2nq5s9fju53tsvu5v8s8gsuvadout2f2.apps.googleusercontent.com',
+  scopes: ['email', 'profile'],
+  offlineAccess: false,
+});
 
-// WebClientId para Google Sign-In
-export const WEB_CLIENT_ID = '468318865609-2nq5s9fju53tsvu5v8s8gsuvadout2f2.apps.googleusercontent.com';
+// Exportar GoogleSignin para uso en AuthContext
+export { GoogleSignin };
 
-export { signInWithPopup, signOut, onAuthStateChanged, doc, getDoc, setDoc, serverTimestamp };
+export { signOut, onAuthStateChanged, doc, getDoc, setDoc, serverTimestamp };
 export type { User };

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { auth, db, signInWithPopup, signOut, GoogleAuthProvider } from '../services/firebase';
+import { auth, db, signOut, GoogleSignin } from '../services/firebase';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 
 export type UserStatus = 'loading' | 'pending' | 'approved' | 'rejected' | 'not_found' | null;
 
@@ -20,11 +21,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Google Provider
-const googleProvider = new GoogleAuthProvider();
-googleProvider.addScope('email');
-googleProvider.addScope('profile');
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -97,23 +93,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Iniciar sesión con Google
+  // Iniciar sesión con Google (Android native)
   const handleSignIn = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      // Obtener tokens de Google
+      await GoogleSignin.hasPlayServices();
+      const googleUser = await GoogleSignin.signIn();
+      
+      // Crear credencial de Firebase con el idToken
+      const idToken = (googleUser as any).idToken;
+      const serverAuthCode = (googleUser as any).serverAuthCode;
+      
+      const credential = GoogleAuthProvider.credential(idToken, serverAuthCode || undefined);
+      
+      // Iniciar sesión en Firebase con la credencial
+      await signInWithCredential(auth, credential);
       
       // Verificar si es nuevo usuario
-      const userDoc = await getDoc(doc(db, 'users', result.user.uid));
-      if (!userDoc.exists()) {
-        await createUserRequest(
-          result.user.uid,
-          result.user.email || '',
-          result.user.displayName,
-          result.user.photoURL
-        );
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (!userDoc.exists()) {
+          await createUserRequest(
+            currentUser.uid,
+            currentUser.email || '',
+            currentUser.displayName,
+            currentUser.photoURL
+          );
+        }
       }
       
-      console.log('Login exitoso:', result.user.email);
+      console.log('Login exitoso:', currentUser?.email);
     } catch (error: any) {
       console.error('Error en login:', error);
       throw error;
@@ -123,6 +133,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Cerrar sesión
   const handleSignOut = async () => {
     try {
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
       await signOut(auth);
       setUser(null);
       setUserStatus(null);
