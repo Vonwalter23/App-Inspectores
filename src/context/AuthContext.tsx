@@ -110,7 +110,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       console.log('🔵 4. ID Token obtenido:', idToken ? 'Sí' : 'No');
       
-      const credential = GoogleAuthProvider.credential(idToken, serverAuthCode || undefined);
+      // GoogleAuthProvider.credential solo necesita idToken
+      const credential = GoogleAuthProvider.credential(idToken);
       
       console.log('🔵 5. Iniciando sesión en Firebase...');
       await signInWithCredential(auth, credential);
