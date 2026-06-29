@@ -96,36 +96,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Iniciar sesión con Google (Android native)
   const handleSignIn = async () => {
     try {
-      // Obtener tokens de Google
+      console.log('🔵 1. Verificando Play Services...');
       await GoogleSignin.hasPlayServices();
+      
+      console.log('🔵 2. Solicitando login con Google...');
       const googleUser = await GoogleSignin.signIn();
+      
+      console.log('🔵 3. Usuario Google:', googleUser);
       
       // Crear credencial de Firebase con el idToken
       const idToken = (googleUser as any).idToken;
       const serverAuthCode = (googleUser as any).serverAuthCode;
       
+      console.log('🔵 4. ID Token obtenido:', idToken ? 'Sí' : 'No');
+      
       const credential = GoogleAuthProvider.credential(idToken, serverAuthCode || undefined);
       
-      // Iniciar sesión en Firebase con la credencial
+      console.log('🔵 5. Iniciando sesión en Firebase...');
       await signInWithCredential(auth, credential);
       
       // Verificar si es nuevo usuario
       const currentUser = auth.currentUser;
+      console.log('🔵 6. Usuario Firebase:', currentUser?.email);
+      
       if (currentUser) {
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
         if (!userDoc.exists()) {
+          console.log('🔵 7. Creando usuario en Firestore...');
           await createUserRequest(
             currentUser.uid,
             currentUser.email || '',
             currentUser.displayName,
             currentUser.photoURL
           );
+        } else {
+          console.log('🔵 7. Usuario ya existe en Firestore');
         }
       }
       
-      console.log('Login exitoso:', currentUser?.email);
+      console.log('✅ Login exitoso:', currentUser?.email);
     } catch (error: any) {
-      console.error('Error en login:', error);
+      console.error('❌ Error completo:', JSON.stringify(error, null, 2));
+      console.error('❌ Código de error:', error.code);
+      console.error('❌ Mensaje de error:', error.message);
+      
+      // Mostrar alert con más información
+      let errorMessage = 'Error al iniciar sesión. Intenta nuevamente.';
+      if (error.code === 'DEVELOPER_ERROR') {
+        errorMessage = 'Error de configuración. Verifica SHA-1 en Firebase.';
+      } else if (error.code === 'INTERNAL_ERROR') {
+        errorMessage = 'Error interno de Google. Intenta más tarde.';
+      } else if (error.code === 'NETWORK_ERROR') {
+        errorMessage = 'Error de red. Verifica tu conexión.';
+      }
+      
+      alert(errorMessage + '\n\nCódigo: ' + (error.code || 'desconocido'));
       throw error;
     }
   };
