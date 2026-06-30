@@ -21,11 +21,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Mostrar SHA en debug
+  print('=== DEBUG INFO ===');
   print('Expected SHA-1 Debug: ${AppDebug.expectedSha1Debug}');
   print('Expected SHA-1 Release: ${AppDebug.expectedSha1Release}');
+  print('Package: com.municipalidad.trelew.inspectores.app');
+  print('==================');
   
   try {
     await Firebase.initializeApp();
+    print('Firebase inicializado OK');
   } catch (e) {
     print('Error Firebase: $e');
     // Mostrar error en pantalla
