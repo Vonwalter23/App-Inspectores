@@ -179,8 +179,8 @@ class MensajeService {
     try {
       final snapshot = await _firestore
           .collection('users')
-          .where('estado', equalTo: 'aprobado')
-          .where('rol', equalTo: 'inspector')
+          .where('estado', isEqualTo: 'aprobado')
+          .where('rol', isEqualTo: 'inspector')
           .get();
 
       return snapshot.docs.map((doc) => {

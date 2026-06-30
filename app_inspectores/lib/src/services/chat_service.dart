@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:cloud_firestore/firebase_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:app_inspectores/src/config/groq_config.dart';
 
 class ChatService {
   static final ChatService instance = ChatService._internal();
@@ -9,7 +10,7 @@ class ChatService {
 
   // Groq API Configuration
   static const String _groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  static const String _groqApiKey = '${GROQ_API_KEY}';
+  String get _groqApiKey => GROQ_API_KEY;
   static const String _model = 'llama-3.1-8b-instant';
 
   // Prompt del sistema para el asistente legal
@@ -117,7 +118,7 @@ No se encontró información en las normas cargadas.
       // Obtener todos los documentos
       final docsSnapshot = await firestore
           .collection('documentos')
-          .where('estado', equalTo: 'indexado')
+          .where('estado', isEqualTo: 'indexado')
           .get();
 
       List<Map<String, dynamic>> allChunks = [];
@@ -165,8 +166,8 @@ No se encontró información en las normas cargadas.
       'como', 'cual', 'cuál', 'cuales', 'cómo', 'mi', 'me', 'se', 'le',
       'lo', 'si', 'no', 'ya', 'al', 'más', 'mas', 'pero', 'sus', 'su',
       'tiene', 'tienen', 'puede', 'pueden', 'ser', 'estar', 'cuando',
-      'cual', 'cuales', 'donde', 'dónde', 'quien', 'quién', 'cuyo',
-      'cuya', 'cuyos', 'cuyas', 'qué', 'cúal', 'cuál',
+      'donde', 'dónde', 'quien', 'quién', 'cuyo',
+      'cuya', 'cuyos', 'cuyas', 'qué',
     };
     
     // Extraer palabras de más de 3 caracteres
@@ -196,7 +197,7 @@ No se encontró información en las normas cargadas.
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('chat_historial')
-          .where('userId', equalTo: userId)
+          .where('userId', isEqualTo: userId)
           .orderBy('timestamp', descending: true)
           .limit(20)
           .get();

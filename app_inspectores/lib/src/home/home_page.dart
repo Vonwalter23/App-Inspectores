@@ -87,8 +87,8 @@ class _HomePageState extends State<HomePage> {
             label: 'Inicio',
           ),
           NavigationDestination(
-            icon: Icon(Icons.智能助手_outlined),
-            selectedIcon: Icon(Icons.智能助手),
+            icon: Icon(Icons.smart_toy_outlined),
+            selectedIcon: Icon(Icons.smart_toy),
             label: 'Asistente IA',
           ),
           NavigationDestination(
@@ -264,7 +264,7 @@ class DashboardView extends StatelessWidget {
             children: [
               _buildQuickAction(
                 context,
-                icon: Icons.智能助手,
+                icon: Icons.smart_toy,
                 title: 'Asistente Legal',
                 subtitle: 'Consulta normas',
                 color: Colors.blue,
