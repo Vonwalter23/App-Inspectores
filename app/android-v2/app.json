@@ -28,7 +28,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "@react-native-google-signin/google-signin"
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "webClientId": "166006434703-9hbsjuklvgabevf3cvb2jbd2tgcicsb8.apps.googleusercontent.com",
+          "offlineAccess": false
+        }
+      ]
     ]
   }
 }

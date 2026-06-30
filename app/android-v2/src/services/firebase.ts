@@ -3,14 +3,14 @@ import { getAuth, signOut, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from 'firebase/firestore';
 import { GoogleSignin, GoogleUser } from '@react-native-google-signin/google-signin';
 
-// Configuración de Firebase - REEMPLAZAR CON TUS PROPIAS CREDENCIALES
+// Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyCHdsxtVQ3MuayxdfXJxN_LsLaIKdHKkFs",
   authDomain: "inspectores-app.firebaseapp.com",
   projectId: "inspectores-app",
-  storageBucket: "inspectores-app.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  storageBucket: "inspectores-app.firebasestorage.app",
+  messagingSenderId: "166006434703",
+  appId: "1:166006434703:android:fce70be5cbe31a365139fa"
 };
 
 // Inicializar Firebase
@@ -20,7 +20,7 @@ export const db = getFirestore(app);
 
 // Configurar Google Sign-In
 GoogleSignin.configure({
-  webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+  webClientId: '166006434703-9hbsjuklvgabevf3cvb2jbd2tgcicsb8.apps.googleusercontent.com',
   scopes: ['email', 'profile'],
   offlineAccess: false,
 });
