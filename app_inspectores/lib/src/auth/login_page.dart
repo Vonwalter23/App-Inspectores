@@ -15,7 +15,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: '468318865609-36tsjdakr3ocmhq1s0kup1sgm9pjd97k.apps.googleusercontent.com',
+    clientId: '468318865609-p272rbvmjcqhbksaib7oa8qgb8bcphuk.apps.googleusercontent.com',
   );
   
   bool _isLoading = false;
