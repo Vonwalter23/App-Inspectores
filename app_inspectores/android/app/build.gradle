@@ -28,9 +28,27 @@ android {
         multiDexEnabled true
     }
 
-    buildTypes {
+    signingConfigs {
+        debug {
+            storeFile file('inspectores.jks')
+            storePassword 'inspectores123'
+            keyAlias 'inspectores'
+            keyPassword 'inspectores123'
+        }
         release {
+            storeFile file('inspectores.jks')
+            storePassword 'inspectores123'
+            keyAlias 'inspectores'
+            keyPassword 'inspectores123'
+        }
+    }
+
+    buildTypes {
+        debug {
             signingConfig = signingConfigs.debug
+        }
+        release {
+            signingConfig = signingConfigs.release
         }
     }
 }
