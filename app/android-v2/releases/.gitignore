@@ -1,5 +1,5 @@
-# Ignorar todo en releases
-*
+# Ignorar keystore (NO SUBIR A GITHUB - GUARDAR EN LUGAR SEGURO)
+*.jks
 
-# Excepto este archivo
-!.gitignore
+# APK release puede subirse
+!*.apk
