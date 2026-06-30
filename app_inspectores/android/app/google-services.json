@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "468318865609-ogilmiu42v66i8orrb56g0k2ijhucojh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.municipalidad.trelew.inspectores.app",
+            "certificate_hash": "9db36bcc140d7bd2ccfadf1659b9b6b6edc64bcb"
+          }
+        },
+        {
           "client_id": "468318865609-p272rbvmjcqhbksaib7oa8qgb8bcphuk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
