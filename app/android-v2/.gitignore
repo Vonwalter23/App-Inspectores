@@ -43,7 +43,5 @@ yarn-error.*
 # Google services (contiene credenciales)
 android/app/google-services.json
 
-# Releases folder
-/releases/
-# EXCEPTO: releases/README.md puede incluirse
-# El keystore y APK deben manejarse manualmente
+# Keystore (NO subir a GitHub)
+/releases/inspectores.jks
