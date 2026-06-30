@@ -13,12 +13,11 @@ import 'src/theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Inicializar Firebase
-  await Firebase.initializeApp();
-  
-  // Inicializar servicios
-  await NotificationService.instance.initialize();
-  await LocationService.instance.initialize();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Error inicializando Firebase: $e');
+  }
   
   runApp(const AppInspectores());
 }
@@ -47,49 +46,84 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
+  bool _initialized = false;
+  String _statusMessage = 'Iniciando...';
+
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen(_checkAuthState);
+    _initialize();
   }
 
-  Future<void> _checkAuthState(User? user) async {
-    if (user != null) {
-      // Verificar estado del usuario en Firestore
-      await _navigateBasedOnStatus();
+  Future<void> _initialize() async {
+    try {
+      setState(() => _statusMessage = 'Inicializando servicios...');
+      
+      // Inicializar servicios (no критично si fallan)
+      try {
+        await NotificationService.instance.initialize();
+      } catch (e) {
+        debugPrint('Error NotificationService: $e');
+      }
+      
+      try {
+        await LocationService.instance.initialize();
+      } catch (e) {
+        debugPrint('Error LocationService: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _initialized = true);
+        _checkUserAndNavigate();
+      }
     }
   }
 
-  Future<void> _navigateBasedOnStatus() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+  Future<void> _checkUserAndNavigate() async {
+    try {
+      setState(() => _statusMessage = 'Verificando usuario...');
+      
+      final user = FirebaseAuth.instance.currentUser;
+      
+      if (user == null) {
+        _goToLogin();
+        return;
+      }
 
-    // Importar dinámicamente para evitar ciclos
-    final authService = AuthService();
-    final status = await authService.getUserStatus(user.uid);
+      setState(() => _statusMessage = 'Verificando estado...');
+      
+      // Usuario existe, verificar estado en Firestore
+      final authService = AuthService();
+      final status = await authService.getUserStatus(user.uid);
 
-    if (!mounted) return;
-
-    if (status == 'aprobado') {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
-    } else if (status == 'pendiente') {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const PendingPage()),
-      );
-    } else {
-      // Rechazado o no existe - volver al login
-      await FirebaseAuth.instance.signOut();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
+      if (status == 'aprobado') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomePage()),
+        );
+      } else if (status == 'pendiente') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const PendingPage()),
+        );
+      } else {
+        // Usuario no existe en Firestore o fue rechazado
+        _goToLogin();
+      }
+    } catch (e) {
+      debugPrint('Error verificando usuario: $e');
+      // En caso de error de red o cualquier problema, ir al login
+      _goToLogin();
     }
+  }
+
+  void _goToLogin() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -102,6 +136,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
             ),
             SizedBox(height: 20),
             CircularProgressIndicator(),
+            SizedBox(height: 10),
+            Text(
+              _statusMessage,
+              style: TextStyle(color: Colors.grey),
+            ),
           ],
         ),
       ),
@@ -122,6 +161,7 @@ class AuthService {
       }
       return null;
     } catch (e) {
+      debugPrint('Error getUserStatus: $e');
       return null;
     }
   }
@@ -144,7 +184,6 @@ class AuthService {
   }) async {
     final batch = _firestore.batch();
     
-    // Crear request
     final requestRef = _firestore.collection('requests').doc(uid);
     batch.set(requestRef, {
       'uid': uid,
@@ -156,7 +195,6 @@ class AuthService {
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    // Crear usuario pendiente
     final userRef = _firestore.collection('users').doc(uid);
     batch.set(userRef, {
       'email': email,
@@ -173,11 +211,13 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    // Detener geolocalización
-    await LocationService.instance.stopTracking();
+    try {
+      await LocationService.instance.stopTracking();
+    } catch (_) {}
     
-    // Desuscribirse de FCM
-    await FirebaseMessaging.instance.deleteToken();
+    try {
+      await FirebaseMessaging.instance.deleteToken();
+    } catch (_) {}
     
     await _auth.signOut();
   }
