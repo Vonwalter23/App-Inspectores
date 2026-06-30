@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'src/auth/login_page.dart';
 import 'src/home/home_page.dart';
 import 'src/auth/pending_page.dart';
@@ -10,16 +11,63 @@ import 'src/services/notification_service.dart';
 import 'src/services/location_service.dart';
 import 'src/theme/app_theme.dart';
 
+// Constants for SHA fingerprints
+class AppDebug {
+  static const String expectedSha1Debug = '9D:B3:6B:CC:14:0D:7B:D2:CC:FA:DF:16:59:B9:B6:B6:ED:C6:4B:CB';
+  static const String expectedSha1Release = 'E2:B7:BD:F0:0F:9B:0E:CF:71:01:84:2B:68:8C:C5:3E:29:05:39:78';
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Mostrar SHA en debug
+  print('Expected SHA-1 Debug: ${AppDebug.expectedSha1Debug}');
+  print('Expected SHA-1 Release: ${AppDebug.expectedSha1Release}');
   
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint('Error inicializando Firebase: $e');
+    print('Error Firebase: $e');
+    // Mostrar error en pantalla
+    runApp(ErrorApp(error: e.toString()));
+    return;
   }
   
   runApp(const AppInspectores());
+}
+
+class ErrorApp extends StatelessWidget {
+  final String error;
+  const ErrorApp({super.key, required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error, size: 80, color: Colors.red),
+                SizedBox(height: 20),
+                Text('Error Firebase', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                SizedBox(height: 20),
+                Text(error, textAlign: TextAlign.center, style: TextStyle(color: Colors.red)),
+                SizedBox(height: 20),
+                Text('SHA-1 Debug esperado:', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(AppDebug.expectedSha1Debug, style: TextStyle(fontFamily: 'monospace')),
+                SizedBox(height: 10),
+                Text('SHA-1 Release esperado:', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(AppDebug.expectedSha1Release, style: TextStyle(fontFamily: 'monospace')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class AppInspectores extends StatelessWidget {
@@ -124,24 +172,46 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.local_police, size: 80, color: Colors.blue),
-            SizedBox(height: 20),
-            Text(
-              'App Inspectores Trelew',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.local_police, size: 80, color: Colors.blue),
+                SizedBox(height: 20),
+                Text(
+                  'App Inspectores Trelew',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 20),
+                CircularProgressIndicator(),
+                SizedBox(height: 10),
+                Text(
+                  _statusMessage,
+                  style: TextStyle(color: Colors.grey),
+                ),
+                SizedBox(height: 30),
+                // Info de debug
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      Text('Debug Info:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      SizedBox(height: 5),
+                      Text('SHA-1 Debug:', style: TextStyle(fontSize: 10)),
+                      Text(AppDebug.expectedSha1Debug, style: TextStyle(fontFamily: 'monospace', fontSize: 9)),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-            CircularProgressIndicator(),
-            SizedBox(height: 10),
-            Text(
-              _statusMessage,
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
+          ),
         ),
       ),
     );
