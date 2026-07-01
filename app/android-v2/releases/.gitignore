@@ -1,0 +1,5 @@
+# Ignorar keystore (NO SUBIR A GITHUB - GUARDAR EN LUGAR SEGURO)
+*.jks
+
+# APK release puede subirse
+!*.apk

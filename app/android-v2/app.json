@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "App Inspectores Trelew",
+    "slug": "AppInspectoresV2",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a73e8"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.municipalidad.trelew.inspectores.v2"
+    },
+    "android": {
+      "package": "com.municipalidad.trelew.inspectores.v2",
+      "adaptiveIcon": {
+        "backgroundColor": "#1a73e8",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "webClientId": "166006434703-9hbsjuklvgabevf3cvb2jbd2tgcicsb8.apps.googleusercontent.com",
+          "iosUrlScheme": "com.googleusercontent.apps.166006434703-9hbsjuklvgabevf3cvb2jbd2tgcicsb8",
+          "offlineAccess": false
+        }
+      ]
+    ]
+  }
+}
