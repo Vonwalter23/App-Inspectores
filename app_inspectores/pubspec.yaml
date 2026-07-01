@@ -21,14 +21,14 @@ dependencies:
   google_sign_in: ^6.2.1
   
   # Geolocalización
-  geolocator: ^13.0.0
-  permission_handler: ^11.3.0
+  geolocator: ^12.0.0
+  permission_handler: ^11.0.0
   
   # HTTP y APIs
   http: ^1.2.0
   
   # Audio Recording
-  record: ^5.0.4
+  record: ^5.0.5
   audioplayers: ^5.2.1
   
   # Utils
@@ -45,7 +45,7 @@ dev_dependencies:
   flutter_lints: ^3.0.1
 
 dependency_overrides:
-  geolocator_android: ^5.0.3
+  record_linux: ^1.0.0
 
 flutter:
   uses-material-design: true

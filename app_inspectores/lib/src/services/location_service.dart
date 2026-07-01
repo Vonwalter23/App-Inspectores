@@ -48,7 +48,7 @@ class LocationService {
 
     try {
       _lastPosition = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        desiredAccuracy: LocationAccuracy.high,
       );
       await _saveLocation(_lastPosition!);
 
@@ -118,7 +118,7 @@ class LocationService {
   Future<Map<String, dynamic>?> getCurrentLocation() async {
     try {
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        desiredAccuracy: LocationAccuracy.high,
       );
       return {
         'latitud': position.latitude,
