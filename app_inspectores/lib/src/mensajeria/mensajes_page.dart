@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 import '../services/mensaje_service.dart';
 
 class MensajesPage extends StatefulWidget {
@@ -447,16 +447,19 @@ class _MensajesPageState extends State<MensajesPage> {
       });
     } else {
       await _audioPlayer.stop();
-      await _audioPlayer.play(UrlSource(url));
+      await _audioPlayer.setUrl(url);
+      await _audioPlayer.play();
       setState(() {
         _playingAudioId = mensajeId;
       });
       
-      _audioPlayer.onPlayerComplete.listen((_) {
-        if (mounted) {
-          setState(() {
-            _playingAudioId = null;
-          });
+      _audioPlayer.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          if (mounted) {
+            setState(() {
+              _playingAudioId = null;
+            });
+          }
         }
       });
     }

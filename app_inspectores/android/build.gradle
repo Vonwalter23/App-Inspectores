@@ -7,32 +7,8 @@ allprojects {
 
 rootProject.buildDir = "../build"
 
-ext {
-    set('flutter.compileSdkVersion', 35)
-    set('flutter.minSdkVersion', 29)
-    set('flutter.targetSdkVersion', 34)
-}
-
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-    ext {
-        set('flutter.compileSdkVersion', 35)
-        set('flutter.minSdkVersion', 29)
-        set('flutter.targetSdkVersion', 34)
-    }
-}
-
-subprojects {
-    afterEvaluate { project ->
-        if (project.plugins.hasPlugin("com.android.library")) {
-            project.android {
-                if (namespace == null) {
-                    namespace = project.group ?: "com.example.${project.name.replace('-', '_')}"
-                }
-                compileSdkVersion 35
-            }
-        }
-    }
+    project.buildDir = "${rootProject.buildDir}/${project.name.replace('-', '_')}"
 }
 
 tasks.register("clean", Delete) {

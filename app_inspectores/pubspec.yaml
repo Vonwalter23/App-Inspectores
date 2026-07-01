@@ -29,7 +29,7 @@ dependencies:
   
   # Audio Recording
   record: ^5.0.5
-  audioplayers: ^5.2.1
+  just_audio: ^0.9.36
   
   # Utils
   intl: ^0.18.1
